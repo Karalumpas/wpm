@@ -39,18 +39,24 @@ export async function POST(req: NextRequest) {
           ? `/products/${product.parent_id}/variations/${product.id}`
           : `/products/${product.id}`;
 
-      const update: any = { regular_price: p.price.toString() };
+      const update: Record<string, unknown> = {
+        regular_price: p.price.toString(),
+      };
       if (p.category) update.categories = [{ name: p.category }];
 
       await client.put(endpoint, update);
 
       results.push({ sku: p.sku, success: true });
-    } catch (err: any) {
-      results.push({
-        sku: p.sku,
-        success: false,
-        error: err?.response?.data?.message ?? 'Ukendt fejl',
-      });
+    } catch (err: unknown) {
+      let message = 'Ukendt fejl';
+      if (err && typeof err === 'object' && 'response' in err) {
+        message = (
+          err as { response?: { data?: { message?: string } } }
+        ).response?.data?.message ?? message;
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
+      results.push({ sku: p.sku, success: false, error: message });
     }
   }
 

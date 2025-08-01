@@ -16,10 +16,6 @@ type Product = {
   selected?: boolean;
 };
 
-type Shop = {
-  id: string;
-  name: string;
-};
 
 export default function SyncPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -27,7 +23,7 @@ export default function SyncPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    fetch('/api/products') // Du skal lave denne route separat
+    fetch('/api/products')
       .then((res) => res.json())
       .then((data) => setProducts(data))
       .catch(() => toast.error('Kunne ikke hente produkter'));
@@ -60,7 +56,7 @@ export default function SyncPage() {
       } else {
         toast.error(result.error || 'Fejl ved synkronisering');
       }
-    } catch (err) {
+    } catch {
       toast.error('Netværksfejl ved sync');
     } finally {
       setIsLoading(false);

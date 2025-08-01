@@ -39,4 +39,6 @@ export function ShopSelector({ selected, onChange }: Props) {
           ))}
         </SelectContent>
       </Select>
-    </div
+    </div>
+  );
+}
