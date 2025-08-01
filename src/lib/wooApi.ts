@@ -8,6 +8,19 @@ export type WooShop = {
   consumer_secret: string;
 };
 
+export type ShopConfig = WooShop;
+
+export function getShopConfigs(): WooShop[] {
+  const raw = process.env.SHOP_CONFIGS;
+  if (!raw) return [];
+
+  try {
+    return JSON.parse(raw) as WooShop[];
+  } catch {
+    return [];
+  }
+}
+
 export function getShopConfig(shopId: string): WooShop | null {
   const raw = process.env.SHOP_CONFIGS;
   if (!raw) return null;

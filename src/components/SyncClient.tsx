@@ -2,23 +2,29 @@
 
 import { useState } from 'react';
 import { Product } from '@/lib/types';
-import { ShopConfig } from '@/lib/wooApi';
-import ProductTable from './ProductTable';
-import ShopSelector from './ShopSelector';
+import { ProductTable } from './ProductTable';
+import { ShopSelector } from './ShopSelector';
 import SyncResultModal from './SyncResultModal';
 
 type Row = Product & { id: number; selected?: boolean };
 
 type Props = {
   products: Row[];
-  shops: ShopConfig[];
 };
 
-export default function SyncClient({ products, shops }: Props) {
+export default function SyncClient({ products }: Props) {
   const [rows, setRows] = useState<Row[]>(products);
   const [shopId, setShopId] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<null | { sku: string; success: boolean; error?: string }[]>(null);
+
+  const toggleRow = (id: number) => {
+    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, selected: !r.selected } : r)));
+  };
+
+  const updateRow = (id: number, data: Partial<Row>) => {
+    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...data } : r)));
+  };
 
   const handleSync = async () => {
     const selected = rows.filter((r) => r.selected);
@@ -43,8 +49,12 @@ export default function SyncClient({ products, shops }: Props) {
 
   return (
     <div className="space-y-4">
-      <ShopSelector shops={shops} value={shopId} onChange={setShopId} />
-      <ProductTable products={rows} onChange={setRows} />
+      <ShopSelector selected={shopId} onChange={setShopId} />
+      <ProductTable
+        products={rows}
+        onToggleSelect={toggleRow}
+        onUpdateProduct={updateRow}
+      />
       <button className="border rounded px-4 py-2" disabled={loading} onClick={handleSync}>
         {loading ? 'Syncing...' : 'Send til WooCommerce'}
       </button>
