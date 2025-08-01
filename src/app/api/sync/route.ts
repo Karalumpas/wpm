@@ -1,36 +1,59 @@
-import { NextResponse } from 'next/server';
-import { z } from 'zod';
-import { getShopConfigs, updateProduct } from '@/lib/wooApi';
+import { NextRequest, NextResponse } from 'next/server';
+import { getShopConfig, getWooClient } from '@/lib/wooApi';
 
-const ItemSchema = z.object({
-  sku: z.string(),
-  price: z.number(),
-  category: z.string().optional(),
-});
+type SyncRequest = {
+  shopId: string;
+  products: {
+    sku: string;
+    price: number;
+    category?: string;
+  }[];
+};
 
-const BodySchema = z.object({
-  shopId: z.string(),
-  products: z.array(ItemSchema),
-});
+export async function POST(req: NextRequest) {
+  const body = (await req.json()) as SyncRequest;
 
-export async function POST(req: Request) {
-  const body = BodySchema.parse(await req.json());
-  const shop = getShopConfigs().find((s) => s.id === body.shopId);
-  if (!shop) {
-    return NextResponse.json({ error: 'Shop not found' }, { status: 400 });
-  }
-  const results = [] as { sku: string; success: boolean; error?: string }[];
-  for (const item of body.products) {
+  const shop = getShopConfig(body.shopId);
+  if (!shop) return NextResponse.json({ error: 'Shop ikke fundet' }, { status: 404 });
+
+  const client = getWooClient(shop);
+
+  const results: { sku: string; success: boolean; error?: string }[] = [];
+
+  for (const p of body.products) {
     try {
-      await updateProduct(shop, item.sku, item.price, item.category);
-      results.push({ sku: item.sku, success: true });
-    } catch (e) {
+      const search = await client.get('/products', {
+        params: { sku: p.sku },
+      });
+
+      if (!search.data || search.data.length === 0) {
+        results.push({ sku: p.sku, success: false, error: 'Produkt ikke fundet' });
+        continue;
+      }
+
+      const product = search.data[0];
+
+      // Vælg rigtigt endpoint
+      const endpoint =
+        product.type === 'variation'
+          ? `/products/${product.parent_id}/variations/${product.id}`
+          : `/products/${product.id}`;
+
+      const update: any = { regular_price: p.price.toString() };
+      if (p.category) update.categories = [{ name: p.category }];
+
+      await client.put(endpoint, update);
+
+      results.push({ sku: p.sku, success: true });
+    } catch (err: any) {
       results.push({
-        sku: item.sku,
+        sku: p.sku,
         success: false,
-        error: (e as Error).message,
+        error: err?.response?.data?.message ?? 'Ukendt fejl',
       });
     }
   }
-  return NextResponse.json({ results });
+
+  const successCount = results.filter((r) => r.success).length;
+  return NextResponse.json({ successCount, results });
 }

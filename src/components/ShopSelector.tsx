@@ -1,33 +1,42 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { ShopConfig } from '@/lib/wooApi';
+import { useEffect, useState } from 'react';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-type Props = {
-  shops: ShopConfig[];
-  value?: string;
-  onChange?: (id: string) => void;
+type Shop = {
+  id: string;
+  name: string;
 };
 
-export default function ShopSelector({ shops, value, onChange }: Props) {
-  const [selected, setSelected] = useState(value || '');
+type Props = {
+  selected: string | null;
+  onChange: (shopId: string) => void;
+};
+
+export function ShopSelector({ selected, onChange }: Props) {
+  const [shops, setShops] = useState<Shop[]>([]);
 
   useEffect(() => {
-    onChange?.(selected);
-  }, [selected, onChange]);
+    fetch('/api/shops')
+      .then((res) => res.json())
+      .then((data) => setShops(data))
+      .catch(() => console.error('Fejl ved hentning af shops'));
+  }, []);
 
   return (
-    <select
-      className="border p-2 rounded"
-      value={selected}
-      onChange={(e) => setSelected(e.target.value)}
-    >
-      <option value="">Vælg shop</option>
-      {shops.map((s) => (
-        <option key={s.id} value={s.id}>
-          {s.name}
-        </option>
-      ))}
-    </select>
-  );
-}
+    <div className="space-y-1">
+      <Label htmlFor="shop">Vælg webshop</Label>
+      <Select value={selected ?? ''} onValueChange={onChange}>
+        <SelectTrigger id="shop" className="w-64">
+          <SelectValue placeholder="Vælg en shop" />
+        </SelectTrigger>
+        <SelectContent>
+          {shops.map((shop) => (
+            <SelectItem key={shop.id} value={shop.id}>
+              {shop.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div

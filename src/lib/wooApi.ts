@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export type ShopConfig = {
+export type WooShop = {
   id: string;
   name: string;
   url: string;
@@ -8,46 +8,29 @@ export type ShopConfig = {
   consumer_secret: string;
 };
 
-export function getShopConfigs(): ShopConfig[] {
+export function getShopConfig(shopId: string): WooShop | null {
   const raw = process.env.SHOP_CONFIGS;
-  if (!raw) return [];
+  if (!raw) return null;
+
   try {
-    return JSON.parse(raw);
+    const configs = JSON.parse(raw);
+    return configs.find((s: WooShop) => s.id === shopId) ?? null;
   } catch {
-    return [];
+    return null;
   }
 }
 
-function createClient(shop: ShopConfig) {
-  return axios.create({
-    baseURL: `${shop.url.replace(/\/$/, '')}/wp-json/wc/v3`,
+export function getWooClient(shop: WooShop) {
+  const instance = axios.create({
+    baseURL: `${shop.url}/wp-json/wc/v3`,
     auth: {
       username: shop.consumer_key,
       password: shop.consumer_secret,
     },
+    headers: {
+      'Content-Type': 'application/json',
+    },
   });
-}
 
-export async function updateProduct(
-  shop: ShopConfig,
-  sku: string,
-  price: number,
-  category?: string
-) {
-  const client = createClient(shop);
-  const { data } = await client.get('/products', { params: { sku } });
-  if (!Array.isArray(data) || data.length === 0) {
-    throw new Error('Product not found');
-  }
-  const product = data[0];
-  const endpoint =
-    product.type === 'variation'
-      ? `/products/${product.parent_id}/variations/${product.id}`
-      : `/products/${product.id}`;
-  const payload: Record<string, unknown> = { regular_price: price.toString() };
-  if (category) {
-    const id = Number(category);
-    payload.categories = [isNaN(id) ? { name: category } : { id }];
-  }
-  await client.patch(endpoint, payload);
+  return instance;
 }

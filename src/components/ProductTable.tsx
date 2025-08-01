@@ -1,72 +1,74 @@
 'use client';
 
-import { useState } from 'react';
-import { Product } from '@/lib/types';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
-type Row = Product & { id: number; selected?: boolean };
+type Product = {
+  id: number;
+  sku: string;
+  name: string;
+  price: number;
+  category?: string;
+  type: 'parent' | 'variation';
+  selected?: boolean;
+};
 
-export default function ProductTable({
-  products,
-  onChange,
-}: {
-  products: Row[];
-  onChange?: (rows: Row[]) => void;
-}) {
-  const [rows, setRows] = useState<Row[]>(products);
+type Props = {
+  products: Product[];
+  onToggleSelect: (id: number) => void;
+  onUpdateProduct: (id: number, data: Partial<Product>) => void;
+};
 
-  const update = <K extends keyof Row>(index: number, field: K, value: Row[K]) => {
-    const copy = [...rows];
-    copy[index] = { ...copy[index], [field]: value };
-    setRows(copy);
-    onChange?.(copy);
-  };
-
+export function ProductTable({ products, onToggleSelect, onUpdateProduct }: Props) {
   return (
-    <table className="min-w-full border border-gray-300 text-sm">
-      <thead>
-        <tr className="bg-gray-100">
-          <th className="p-2 border">Select</th>
-          <th className="p-2 border">SKU</th>
-          <th className="p-2 border">Name</th>
-          <th className="p-2 border">Price</th>
-          <th className="p-2 border">Category</th>
-          <th className="p-2 border">Type</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row, idx) => (
-          <tr key={row.id} className="border-t">
-            <td className="p-2 border text-center">
-              <input
-                type="checkbox"
-                checked={!!row.selected}
-                onChange={(e) => update(idx, 'selected', e.target.checked)}
-              />
-            </td>
-            <td className="p-2 border">{row.sku}</td>
-            <td className="p-2 border">{row.name}</td>
-            <td className="p-2 border">
-              <input
-                type="number"
-                className="border p-1 rounded w-24"
-                value={row.price ?? ''}
-                onChange={(e) =>
-                  update(idx, 'price', parseFloat(e.target.value) || 0)
-                }
-              />
-            </td>
-            <td className="p-2 border">
-              <input
-                type="text"
-                className="border p-1 rounded"
-                value={row.category ?? ''}
-                onChange={(e) => update(idx, 'category', e.target.value)}
-              />
-            </td>
-            <td className="p-2 border">{row.type}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div className="rounded border overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead></TableHead>
+            <TableHead>SKU</TableHead>
+            <TableHead>Navn</TableHead>
+            <TableHead>Pris</TableHead>
+            <TableHead>Kategori</TableHead>
+            <TableHead>Type</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {products.map((product) => (
+            <TableRow key={product.id} className={product.type === 'variation' ? 'bg-muted/30' : ''}>
+              <TableCell>
+                <Checkbox
+                  checked={product.selected}
+                  onCheckedChange={() => onToggleSelect(product.id)}
+                />
+              </TableCell>
+              <TableCell className="text-xs">{product.sku}</TableCell>
+              <TableCell className="font-medium">{product.name}</TableCell>
+              <TableCell>
+                <Input
+                  type="number"
+                  value={product.price}
+                  onChange={(e) =>
+                    onUpdateProduct(product.id, { price: parseFloat(e.target.value) || 0 })
+                  }
+                  className="w-24"
+                />
+              </TableCell>
+              <TableCell>
+                <Input
+                  value={product.category || ''}
+                  onChange={(e) =>
+                    onUpdateProduct(product.id, { category: e.target.value })
+                  }
+                  className="w-40"
+                />
+              </TableCell>
+              <TableCell className="capitalize text-muted-foreground">{product.type}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }
