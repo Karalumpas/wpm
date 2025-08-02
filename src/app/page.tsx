@@ -269,9 +269,33 @@ export default function WooCommerceManager() {
               <p className="text-gray-600 mt-1">Administrer produkter på tværs af dine WooCommerce shops</p>
             </div>
             <div className="flex items-center gap-3">
-              <Badge variant={selectedShop ? "default" : "secondary"} className="px-3 py-1">
-                {selectedShop ? shops.find(s => s.id === selectedShop)?.name : 'Ingen shop valgt'}
-              </Badge>
+              {selectedShop && (
+                shops.find((s) => s.id === selectedShop)?.isConnected ? (
+                  <Wifi className="w-5 h-5 text-green-500" />
+                ) : (
+                  <WifiOff className="w-5 h-5 text-red-500" />
+                )
+              )}
+              <select
+                className={`border rounded px-3 py-1 focus:outline-none ${
+                  selectedShop
+                    ? shops.find((s) => s.id === selectedShop)?.isConnected
+                      ? 'border-green-500 text-green-700'
+                      : 'border-red-500 text-red-700'
+                    : 'text-gray-600'
+                }`}
+                value={selectedShop ?? ''}
+                onChange={(e) => setSelectedShop(e.target.value)}
+              >
+                <option value="" disabled>
+                  Vælg shop
+                </option>
+                {shops.map((shop) => (
+                  <option key={shop.id} value={shop.id}>
+                    {shop.name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         </div>
