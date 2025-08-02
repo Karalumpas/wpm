@@ -326,7 +326,7 @@ export default function WooCommerceManager() {
         <div className="bg-white rounded-xl shadow-sm border">
           <div className="flex border-b">
             <Link
-              href="/dashboard"
+              href={selectedShop ? `/dashboard?shopId=${selectedShop}` : '/dashboard'}
               className="flex items-center gap-2 px-6 py-4 font-medium text-gray-600 hover:text-gray-900 transition-colors"
             >
               <LayoutDashboard className="w-5 h-5" />
