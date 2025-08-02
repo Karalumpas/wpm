@@ -19,6 +19,7 @@ interface WooProductData {
   stock_quantity?: number;
   stock_status?: string;
   status?: string;
+  total_sales?: number;
   images?: { src: string }[];
   attributes?: WooProductAttribute[];
 }
@@ -40,6 +41,7 @@ export type WooProduct = {
   color?: string;
   size?: string;
   brand?: string;
+  totalSales?: number;
   variations?: WooProductVariation[];
 };
 
@@ -54,6 +56,7 @@ export type WooProductVariation = {
   color?: string;
   size?: string;
   image?: string;
+  totalSales?: number;
 };
 
 export type WooShop = {
@@ -118,6 +121,7 @@ function mapProduct(p: WooProductData): WooProduct {
     color: extractAttribute(p, ['color', 'colour', 'pa_color', 'farve']),
     size: extractAttribute(p, ['size', 'pa_size', 'størrelse']),
     brand: extractAttribute(p, ['brand', 'pa_brand']),
+    totalSales: p.total_sales,
   };
 }
 
@@ -157,6 +161,7 @@ export async function fetchWooProducts(shop: WooShop): Promise<WooProduct[]> {
             color: variation.color,
             size: variation.size,
             image: variation.image,
+            totalSales: variation.totalSales,
           });
         }
         base.variations = summaries;

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,7 +36,8 @@ import {
   Search,
   RefreshCw,
   Save,
-  X
+  X,
+  LayoutDashboard,
 } from 'lucide-react';
 
 type Product = WooProduct;
@@ -323,11 +325,18 @@ export default function WooCommerceManager() {
         {/* Navigation Tabs */}
         <div className="bg-white rounded-xl shadow-sm border">
           <div className="flex border-b">
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-2 px-6 py-4 font-medium text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <LayoutDashboard className="w-5 h-5" />
+              Dashboard
+            </Link>
             <button
               onClick={() => setActiveTab('products')}
               className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors ${
-                activeTab === 'products' 
-                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' 
+                activeTab === 'products'
+                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
