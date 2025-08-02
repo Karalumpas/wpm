@@ -29,8 +29,6 @@ import {
   Store,
   Edit3,
   Trash2,
-  ChevronDown,
-  ChevronRight,
   Wifi,
   WifiOff,
   Search,
@@ -58,7 +56,8 @@ export default function WooCommerceManager() {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'products' | 'shops'>('products');
   const [searchTerm, setSearchTerm] = useState('');
-  const [expandedProducts, setExpandedProducts] = useState<Set<number>>(new Set());
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [showSheet, setShowSheet] = useState(false);
   const [editingShop, setEditingShop] = useState<Shop | null>(null);
   const [showNewShopForm, setShowNewShopForm] = useState(false);
 
@@ -90,27 +89,11 @@ export default function WooCommerceManager() {
   }, []);
 
 
-  const filteredProducts = products.filter(product => 
+  const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.sku.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const parentProducts = filteredProducts.filter(p => p.type === 'parent');
-  const displayedProducts = parentProducts.slice(0, 25);
-
-  const getVariations = (parentId: number) => {
-    return filteredProducts.filter(p => p.type === 'variation' && p.parentId === parentId);
-  };
-
-  const toggleExpanded = (productId: number) => {
-    const newExpanded = new Set(expandedProducts);
-    if (newExpanded.has(productId)) {
-      newExpanded.delete(productId);
-    } else {
-      newExpanded.add(productId);
-    }
-    setExpandedProducts(newExpanded);
-  };
+  const displayedProducts = filteredProducts.slice(0, 25);
 
   const testConnection = async (shop: Shop, background = false) => {
     if (!background) setIsLoading(true);
@@ -399,93 +382,57 @@ export default function WooCommerceManager() {
               {selectedShop ? (
                 <div className="space-y-3">
                   <div className="text-sm text-gray-600 mb-4">
-                    Viser {displayedProducts.length} af {parentProducts.length} produkter
+                    Viser {displayedProducts.length} af {filteredProducts.length} produkter
                   </div>
-                  
-                  {displayedProducts.map((product) => {
-                    const variations = getVariations(product.id);
-                    const isExpanded = expandedProducts.has(product.id);
-                    
-                    return (
-                      <div key={product.id} className="bg-white border rounded-lg overflow-hidden shadow-sm">
-                        {/* Parent Product */}
-                        <div className="p-4 hover:bg-gray-50 transition-colors">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4 flex-1">
-                              {variations.length > 0 && (
-                                <button
-                                  onClick={() => toggleExpanded(product.id)}
-                                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                                >
-                                  {isExpanded ? (
-                                    <ChevronDown className="w-5 h-5" />
-                                  ) : (
-                                    <ChevronRight className="w-5 h-5" />
-                                  )}
-                                </button>
-                              )}
-                              <div className="flex-1">
-                                <div className="flex items-center gap-3 mb-1">
-                                  <h3 className="font-semibold text-gray-900">{product.name}</h3>
-                                  <Badge variant="outline" className="text-xs">
-                                    {product.category}
+
+                  {displayedProducts.map((product) => (
+                    <div key={product.id} className="bg-white border rounded-lg overflow-hidden shadow-sm">
+                      {/* Parent Product */}
+                      <div
+                        className="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                        onClick={() => {
+                          setSelectedProduct(product);
+                          setShowSheet(true);
+                        }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4 flex-1">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-1">
+                                <h3 className="font-semibold text-gray-900">{product.name}</h3>
+                                <Badge variant="outline" className="text-xs">
+                                  {product.category}
+                                </Badge>
+                                {product.variations && product.variations.length > 0 && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    {product.variations.length} varianter
                                   </Badge>
-                                  {variations.length > 0 && (
-                                    <Badge variant="secondary" className="text-xs">
-                                      {variations.length} varianter
-                                    </Badge>
-                                  )}
-                                </div>
-                                <div className="flex items-center gap-4 text-sm text-gray-600">
-                                  <span>SKU: {product.sku}</span>
-                                  <span>Pris: {product.price} kr</span>
-                                  <span>Lager: {product.stock}</span>
-                                </div>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-4 text-sm text-gray-600">
+                                <span>SKU: {product.sku}</span>
+                                <span>Pris: {product.price} kr</span>
+                                <span>Lager: {product.stock}</span>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <Button variant="ghost" size="sm">
-                                <Edit3 className="w-4 h-4" />
-                              </Button>
-                              <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
+                              <Edit3 className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-red-600 hover:text-red-700"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
                           </div>
                         </div>
-
-                        {/* Variations */}
-                        {isExpanded && variations.length > 0 && (
-                          <div className="border-t bg-gray-50">
-                            {variations.map((variation) => (
-                              <div key={variation.id} className="p-4 border-b last:border-b-0 ml-9">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-3 mb-1">
-                                      <h4 className="font-medium text-gray-800">{variation.name}</h4>
-                                      <Badge variant="outline">
-                                        Variant
-                                      </Badge>
-                                    </div>
-                                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                                      <span>SKU: {variation.sku}</span>
-                                      <span>Pris: {variation.price} kr</span>
-                                      <span>Lager: {variation.stock}</span>
-                                    </div>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <Button variant="ghost" size="sm">
-                                      <Edit3 className="w-4 h-4" />
-                                    </Button>
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
                       </div>
-                    );
-                  })}
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="text-center py-12 text-gray-500">
@@ -598,6 +545,7 @@ export default function WooCommerceManager() {
           )}
         </div>
       </div>
+      {showSheet && selectedProduct && <div className="hidden" />}
     </div>
   );
 }
