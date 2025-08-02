@@ -21,7 +21,8 @@ export function ProductTable({ products, onToggleSelect }: Props) {
             <TableHead>Navn</TableHead>
             <TableHead>SKU</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Pris</TableHead>
+            <TableHead>Normalpris</TableHead>
+            <TableHead>Salgspris</TableHead>
             <TableHead>Farve</TableHead>
             <TableHead>Størrelse</TableHead>
             <TableHead>Brand</TableHead>
@@ -46,7 +47,18 @@ export function ProductTable({ products, onToggleSelect }: Props) {
               <TableCell className="capitalize text-muted-foreground">
                 {product.status}
               </TableCell>
-              <TableCell>{product.price}</TableCell>
+              <TableCell>{product.regularPrice ?? '-'}</TableCell>
+              <TableCell
+                className={
+                  product.salePrice !== undefined &&
+                  product.regularPrice !== undefined &&
+                  product.salePrice < product.regularPrice
+                    ? 'text-red-600 font-semibold'
+                    : undefined
+                }
+              >
+                {product.salePrice ?? '-'}
+              </TableCell>
               <TableCell>{product.color}</TableCell>
               <TableCell>{product.size}</TableCell>
               <TableCell>{product.brand}</TableCell>
