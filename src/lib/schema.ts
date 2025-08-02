@@ -19,3 +19,13 @@ export const products = sqliteTable('products', {
   parentSku: text('parent_sku'),
   attributes: text('attributes'),
 });
+
+export const shops = sqliteTable('shops', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  url: text('url').notNull(),
+  apiKey: text('api_key'),
+  apiSecret: text('api_secret'),
+  isConnected: integer('is_connected', { mode: 'boolean' }).notNull().default(false),
+  lastSync: integer('last_sync', { mode: 'timestamp' }),
+});

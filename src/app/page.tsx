@@ -75,14 +75,19 @@ export default function WooCommerceManager() {
       { id: 6, sku: 'HOODIE-002-M-BLACK', name: 'Cotton Hoodie - Medium, Sort', price: 599, category: 'Tøj', type: 'variation', parentId: 5, stock: 12, status: 'publish' },
     ];
 
-    const mockShops: Shop[] = [
-      { id: '1', name: 'Min Hovedbutik', url: 'https://minbutik.dk', apiKey: 'ck_123...', apiSecret: 'cs_456...', isConnected: true, lastSync: '2025-08-02T10:30:00Z' },
-      { id: '2', name: 'Test Shop', url: 'https://testshop.dk', apiKey: 'ck_789...', apiSecret: 'cs_abc...', isConnected: false },
-    ];
-
     setProducts(mockProducts);
-    setShops(mockShops);
-    if (mockShops.length > 0) setSelectedShop(mockShops[0].id);
+
+    const loadShops = async () => {
+      try {
+        const res = await fetch('/api/shops');
+        const data: Shop[] = await res.json();
+        setShops(data);
+        if (data.length > 0) setSelectedShop(data[0].id);
+      } catch {
+        console.error('Fejl ved hentning af shops');
+      }
+    };
+    loadShops();
   }, []);
 
   const filteredProducts = products.filter(product => 
@@ -127,20 +132,29 @@ export default function WooCommerceManager() {
   };
 
   const saveShop = async (shopData: Omit<Shop, 'id' | 'isConnected'>) => {
-    const newShop: Shop = {
-      ...shopData,
-      id: Date.now().toString(),
-      isConnected: false
-    };
-
-    setShops(prev => [...prev, newShop]);
-    toast.success('Shop tilføjet successfully!');
+    try {
+      const res = await fetch('/api/shops', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(shopData),
+      });
+      const newShop: Shop = await res.json();
+      setShops(prev => [...prev, newShop]);
+      toast.success('Shop tilføjet successfully!');
+    } catch {
+      toast.error('Fejl ved oprettelse af shop');
+    }
   };
 
-  const deleteShop = (shopId: string) => {
-    setShops(prev => prev.filter(s => s.id !== shopId));
-    if (selectedShop === shopId) setSelectedShop(null);
-    toast.success('Shop slettet');
+  const deleteShop = async (shopId: string) => {
+    try {
+      await fetch(`/api/shops/${shopId}`, { method: 'DELETE' });
+      setShops(prev => prev.filter(s => s.id !== shopId));
+      if (selectedShop === shopId) setSelectedShop(null);
+      toast.success('Shop slettet');
+    } catch {
+      toast.error('Fejl ved sletning af shop');
+    }
   };
 
   const syncProducts = async () => {
@@ -175,9 +189,9 @@ export default function WooCommerceManager() {
     }
   };
 
-  const ShopForm = ({ shop, onSave, onCancel }: { 
-    shop?: Shop; 
-    onSave: (data: Omit<Shop, 'id' | 'isConnected'>) => void; 
+  const ShopForm = ({ shop, onSave, onCancel }: {
+    shop?: Shop;
+    onSave: (data: Omit<Shop, 'id' | 'isConnected'>) => Promise<void>;
     onCancel: () => void;
   }) => {
     const [formData, setFormData] = useState({
@@ -187,14 +201,24 @@ export default function WooCommerceManager() {
       apiSecret: shop?.apiSecret || ''
     });
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
       if (shop) {
-        setShops(prev => prev.map(s =>
-          s.id === shop.id ? { ...s, ...formData } : s
-        ));
-        toast.success('Shop opdateret successfully!');
+        try {
+          const res = await fetch(`/api/shops/${shop.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+          });
+          const updated: Shop = await res.json();
+          setShops(prev => prev.map(s =>
+            s.id === shop.id ? updated : s
+          ));
+          toast.success('Shop opdateret successfully!');
+        } catch {
+          toast.error('Fejl ved opdatering af shop');
+        }
       } else {
-        onSave(formData);
+        await onSave(formData);
       }
       setEditingShop(null);
       setShowNewShopForm(false);

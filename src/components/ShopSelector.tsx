@@ -17,10 +17,16 @@ export function ShopSelector({ selected, onChange }: Props) {
   const [shops, setShops] = useState<Shop[]>([]);
 
   useEffect(() => {
-    fetch('/api/shops')
-      .then((res) => res.json())
-      .then((data) => setShops(data))
-      .catch(() => console.error('Fejl ved hentning af shops'));
+    const loadShops = async () => {
+      try {
+        const res = await fetch('/api/shops');
+        const data: Shop[] = await res.json();
+        setShops(data);
+      } catch {
+        console.error('Fejl ved hentning af shops');
+      }
+    };
+    loadShops();
   }, []);
 
   return (

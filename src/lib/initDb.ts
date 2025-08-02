@@ -20,4 +20,14 @@ export function initDb(db: Database.Database) {
     parent_sku TEXT,
     attributes TEXT
   );`);
+
+  db.exec(`CREATE TABLE IF NOT EXISTS shops (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    url TEXT NOT NULL,
+    api_key TEXT,
+    api_secret TEXT,
+    is_connected INTEGER NOT NULL DEFAULT 0,
+    last_sync INTEGER
+  );`);
 }
