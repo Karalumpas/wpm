@@ -17,8 +17,13 @@ export default function Dashboard() {
     const load = async () => {
       try {
         const res = await fetch(`/api/woo/products?shopId=${selectedShop}`);
-        const data: WooProduct[] = await res.json();
-        setProducts(data);
+        const data: unknown = await res.json();
+        if (!res.ok || !Array.isArray(data)) {
+          console.error('Invalid product response', data);
+          setProducts([]);
+          return;
+        }
+        setProducts(data as WooProduct[]);
       } catch {
         console.error('Fejl ved hentning af produkter');
       }
