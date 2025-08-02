@@ -5,8 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShopSelector } from '@/components/ShopSelector';
 import type { WooProduct } from '@/lib/wooApi';
 
-export default function Dashboard() {
-  const [selectedShop, setSelectedShop] = useState<string | null>(null);
+type Props = {
+  searchParams: { shopId?: string };
+};
+
+export default function Dashboard({ searchParams }: Props) {
+  const [selectedShop, setSelectedShop] = useState<string | null>(
+    searchParams.shopId ?? null,
+  );
   const [products, setProducts] = useState<WooProduct[]>([]);
 
   useEffect(() => {
@@ -33,56 +39,65 @@ export default function Dashboard() {
     : 0;
 
   return (
-    <div className="p-6 space-y-6">
-      <ShopSelector selected={selectedShop} onChange={setSelectedShop} />
-      {selectedShop && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Card>
-            <CardHeader>
-              <CardTitle>Varer med lavt lager</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold">{lowStock}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Samlet antal produkter</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold">{totalProducts}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Samlet omsætning</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold">
-                {totalRevenue.toLocaleString('da-DK', { style: 'currency', currency: 'DKK' })}
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Udsolgte varer</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold">{outOfStock}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Gennemsnitspris</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold">
-                {avgPrice.toLocaleString('da-DK', { style: 'currency', currency: 'DKK' })}
-              </p>
-            </CardContent>
-          </Card>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="bg-white rounded-xl shadow-sm border p-6">
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <ShopSelector selected={selectedShop} onChange={setSelectedShop} />
+          </div>
         </div>
-      )}
+        {selectedShop && (
+          <div className="bg-white rounded-xl shadow-sm border p-6">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Varer med lavt lager</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-bold">{lowStock}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Samlet antal produkter</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-bold">{totalProducts}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Samlet omsætning</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-bold">
+                    {totalRevenue.toLocaleString('da-DK', { style: 'currency', currency: 'DKK' })}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Udsolgte varer</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-bold">{outOfStock}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Gennemsnitspris</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-bold">
+                    {avgPrice.toLocaleString('da-DK', { style: 'currency', currency: 'DKK' })}
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
