@@ -1,18 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShopSelector } from '@/components/ShopSelector';
 import type { WooProduct } from '@/lib/wooApi';
 
-type Props = {
-  searchParams: { shopId?: string };
-};
-
-export default function Dashboard({ searchParams }: Props) {
-  const [selectedShop, setSelectedShop] = useState<string | null>(
-    searchParams.shopId ?? null,
-  );
+export default function Dashboard() {
+  const params = useSearchParams();
+  const initialShop = params.get('shopId');
+  const [selectedShop, setSelectedShop] = useState<string | null>(initialShop);
   const [products, setProducts] = useState<WooProduct[]>([]);
 
   useEffect(() => {
