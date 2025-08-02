@@ -2,7 +2,7 @@ export type Product = {
   sku: string;
   name: string;
   type: 'parent' | 'variation';
-  price?: number;
+  price?: number | null;
   category?: string | null;
   stockStatus?: string | null;
   parentSku?: string | null;

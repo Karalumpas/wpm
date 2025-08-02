@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 
-export interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> {}
-export interface TableHeaderProps extends React.HTMLAttributes<HTMLTableSectionElement> {}
-export interface TableBodyProps extends React.HTMLAttributes<HTMLTableSectionElement> {}
-export interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {}
-export interface TableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElement> {}
-export interface TableCellProps extends React.TdHTMLAttributes<HTMLTableCellElement> {}
+export type TableProps = React.TableHTMLAttributes<HTMLTableElement>;
+export type TableHeaderProps = React.HTMLAttributes<HTMLTableSectionElement>;
+export type TableBodyProps = React.HTMLAttributes<HTMLTableSectionElement>;
+export type TableRowProps = React.HTMLAttributes<HTMLTableRowElement>;
+export type TableHeadProps = React.ThHTMLAttributes<HTMLTableCellElement>;
+export type TableCellProps = React.TdHTMLAttributes<HTMLTableCellElement>;
 
 export const Table = React.forwardRef<HTMLTableElement, TableProps>(({ className, ...props }, ref) => (
   <table ref={ref} className={cn('w-full text-sm', className)} {...props} />

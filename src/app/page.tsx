@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import type { WooProduct } from '@/lib/wooApi';
 // Custom toast implementation
 const toast = {
   success: (message: string) => {
@@ -40,19 +41,7 @@ import {
   X
 } from 'lucide-react';
 
-type Product = {
-  id: number;
-  sku: string;
-  name: string;
-  price: number;
-  category?: string;
-  type: 'parent' | 'variation';
-  parentId?: number;
-  selected?: boolean;
-  stock?: number;
-  status?: 'publish' | 'draft' | 'private';
-  image?: string;
-};
+type Product = WooProduct;
 
 type Shop = {
   id: string;
@@ -179,8 +168,9 @@ export default function WooCommerceManager() {
         s.id === selectedShop ? { ...s, lastSync: new Date().toISOString() } : s
       ));
       toast.success('Produkter synkroniseret!');
-    } catch (err: any) {
-      toast.error('Fejl ved synkronisering: ' + (err?.message || 'Ukendt fejl'));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Ukendt fejl';
+      toast.error('Fejl ved synkronisering: ' + message);
     } finally {
       setIsLoading(false);
     }
@@ -413,7 +403,7 @@ export default function WooCommerceManager() {
                                   <div className="flex-1">
                                     <div className="flex items-center gap-3 mb-1">
                                       <h4 className="font-medium text-gray-800">{variation.name}</h4>
-                                      <Badge variant="outline" size="sm">
+                                      <Badge variant="outline">
                                         Variant
                                       </Badge>
                                     </div>
