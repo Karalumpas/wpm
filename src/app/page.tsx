@@ -132,9 +132,8 @@ export default function WooCommerceManager() {
       id: Date.now().toString(),
       isConnected: false
     };
-    
+
     setShops(prev => [...prev, newShop]);
-    setShowNewShopForm(false);
     toast.success('Shop tilføjet successfully!');
   };
 
@@ -189,7 +188,16 @@ export default function WooCommerceManager() {
     });
 
     const handleSubmit = () => {
-      onSave(formData);
+      if (shop) {
+        setShops(prev => prev.map(s =>
+          s.id === shop.id ? { ...s, ...formData } : s
+        ));
+        toast.success('Shop opdateret successfully!');
+      } else {
+        onSave(formData);
+      }
+      setEditingShop(null);
+      setShowNewShopForm(false);
     };
 
     return (
@@ -465,7 +473,7 @@ export default function WooCommerceManager() {
             <div className="p-6 space-y-6">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-semibold">WooCommerce Shops</h2>
-                <Button onClick={() => setShowNewShopForm(true)}>
+                <Button onClick={() => { setEditingShop(null); setShowNewShopForm(true); }}>
                   <Plus className="w-4 h-4 mr-2" />
                   Tilføj Shop
                 </Button>
@@ -473,8 +481,9 @@ export default function WooCommerceManager() {
 
               {showNewShopForm && (
                 <ShopForm
+                  shop={editingShop ?? undefined}
                   onSave={saveShop}
-                  onCancel={() => setShowNewShopForm(false)}
+                  onCancel={() => { setEditingShop(null); setShowNewShopForm(false); }}
                 />
               )}
 
@@ -520,7 +529,11 @@ export default function WooCommerceManager() {
                           >
                             Test forbindelse
                           </Button>
-                          <Button variant="ghost" size="sm">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => { setEditingShop(shop); setShowNewShopForm(true); }}
+                          >
                             <Edit3 className="w-4 h-4" />
                           </Button>
                           <Button 
@@ -547,7 +560,7 @@ export default function WooCommerceManager() {
                 <div className="text-center py-12 text-gray-500">
                   <Store className="w-12 h-12 mx-auto mb-4 opacity-50" />
                   <p>Ingen shops tilføjet endnu</p>
-                  <Button className="mt-4" onClick={() => setShowNewShopForm(true)}>
+                  <Button className="mt-4" onClick={() => { setEditingShop(null); setShowNewShopForm(true); }}>
                     <Plus className="w-4 h-4 mr-2" />
                     Tilføj din første shop
                   </Button>
