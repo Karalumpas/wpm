@@ -233,7 +233,7 @@ export default function WooCommerceManager() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">API Nøgle</label>
+                <label className="block text-sm font-medium mb-2">Kunde nøgle</label>
                 <Input
                   value={formData.apiKey}
                   onChange={(e) => setFormData(prev => ({ ...prev, apiKey: e.target.value }))}
@@ -242,7 +242,7 @@ export default function WooCommerceManager() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">API Secret</label>
+                <label className="block text-sm font-medium mb-2">Kundekodeord</label>
                 <Input
                   value={formData.apiSecret}
                   onChange={(e) => setFormData(prev => ({ ...prev, apiSecret: e.target.value }))}
