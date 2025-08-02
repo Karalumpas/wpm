@@ -19,8 +19,8 @@ export function getShopConfigs(): WooShop[] {
   } catch {
     return [];
   }
+}
 
-export async function fetchWooProducts(shop: WooShop) {
 export async function fetchWooProducts(shop: WooShop) {
   const client = getWooClient(shop);
   try {
