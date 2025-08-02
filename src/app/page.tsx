@@ -62,18 +62,17 @@ export default function WooCommerceManager() {
   const [editingShop, setEditingShop] = useState<Shop | null>(null);
   const [showNewShopForm, setShowNewShopForm] = useState(false);
 
-  // Mock data for demonstration
+  // Load data from the backend
   useEffect(() => {
-    const mockProducts: Product[] = [
-      { id: 1, sku: 'T-SHIRT-001', name: 'Premium T-Shirt', price: 299, category: 'Tøj', type: 'parent', stock: 50, status: 'publish' },
-      { id: 2, sku: 'T-SHIRT-001-S-BLUE', name: 'Premium T-Shirt - Small, Blå', price: 299, category: 'Tøj', type: 'variation', parentId: 1, stock: 10, status: 'publish' },
-      { id: 3, sku: 'T-SHIRT-001-M-BLUE', name: 'Premium T-Shirt - Medium, Blå', price: 299, category: 'Tøj', type: 'variation', parentId: 1, stock: 15, status: 'publish' },
-      { id: 4, sku: 'T-SHIRT-001-L-RED', name: 'Premium T-Shirt - Large, Rød', price: 299, category: 'Tøj', type: 'variation', parentId: 1, stock: 8, status: 'publish' },
-      { id: 5, sku: 'HOODIE-002', name: 'Cotton Hoodie', price: 599, category: 'Tøj', type: 'parent', stock: 25, status: 'publish' },
-      { id: 6, sku: 'HOODIE-002-M-BLACK', name: 'Cotton Hoodie - Medium, Sort', price: 599, category: 'Tøj', type: 'variation', parentId: 5, stock: 12, status: 'publish' },
-    ];
-
-    setProducts(mockProducts);
+    const loadProducts = async () => {
+      try {
+        const res = await fetch('/api/products');
+        const data: Product[] = await res.json();
+        setProducts(data);
+      } catch {
+        console.error('Fejl ved hentning af produkter');
+      }
+    };
 
     const loadShops = async () => {
       try {
@@ -85,6 +84,8 @@ export default function WooCommerceManager() {
         console.error('Fejl ved hentning af shops');
       }
     };
+
+    loadProducts();
     loadShops();
   }, []);
 
