@@ -46,10 +46,14 @@ export type WooProduct = {
 export type WooProductVariation = {
   id: number;
   sku: string;
+  price: number;
+  regularPrice?: number;
+  salePrice?: number;
   stock?: number;
   stockStatus?: string;
   color?: string;
   size?: string;
+  image?: string;
 };
 
 export type WooShop = {
@@ -142,14 +146,17 @@ export async function fetchWooProducts(shop: WooShop): Promise<WooProduct[]> {
           variation.category = base.category;
           if (!variation.brand) variation.brand = base.brand;
           if (!variation.image) variation.image = base.image;
-          products.push(variation);
           summaries.push({
             id: variation.id,
             sku: variation.sku,
+            price: variation.price,
+            regularPrice: variation.regularPrice,
+            salePrice: variation.salePrice,
             stock: variation.stock,
             stockStatus: variation.stockStatus,
             color: variation.color,
             size: variation.size,
+            image: variation.image,
           });
         }
         base.variations = summaries;
