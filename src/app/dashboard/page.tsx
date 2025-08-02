@@ -3,13 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ShopSelector } from '@/components/ShopSelector';
 import type { WooProduct } from '@/lib/wooApi';
+import { useShop } from '@/components/ShopContext';
 
 export default function Dashboard() {
   const params = useSearchParams();
-  const initialShop = params.get('shopId');
-  const [selectedShop, setSelectedShop] = useState<string | null>(initialShop);
+  const { selectedShop, setSelectedShop } = useShop();
   const [products, setProducts] = useState<WooProduct[]>([]);
 
   useEffect(() => {
@@ -40,15 +39,14 @@ export default function Dashboard() {
     ? products.reduce((sum, p) => sum + p.price, 0) / totalProducts
     : 0;
 
+  useEffect(() => {
+    const initial = params.get('shopId');
+    if (initial) setSelectedShop(initial);
+  }, [params, setSelectedShop]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="bg-white rounded-xl shadow-sm border p-6">
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-            <ShopSelector selected={selectedShop} onChange={setSelectedShop} />
-          </div>
-        </div>
         {selectedShop && (
           <div className="bg-white rounded-xl shadow-sm border p-6">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

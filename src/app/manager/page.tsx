@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import ProductSheetModal from '@/components/ProductSheetModal';
 import type { WooProduct } from '@/lib/wooApi';
+import { useShop } from '@/components/ShopContext';
 // Custom toast implementation
 const toast = {
   success: (message: string) => {
@@ -37,7 +37,6 @@ import {
   RefreshCw,
   Save,
   X,
-  LayoutDashboard,
 } from 'lucide-react';
 
 type Product = WooProduct;
@@ -53,9 +52,9 @@ type Shop = {
 };
 
 export default function WooCommerceManager() {
+  const { selectedShop, setSelectedShop } = useShop();
   const [products, setProducts] = useState<Product[]>([]);
   const [shops, setShops] = useState<Shop[]>([]);
-  const [selectedShop, setSelectedShop] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'products' | 'shops'>('products');
   const [searchTerm, setSearchTerm] = useState('');
@@ -89,7 +88,7 @@ export default function WooCommerceManager() {
 
     loadProducts();
     loadShops();
-  }, []);
+    }, [setSelectedShop]);
 
 
   const filteredProducts = products.filter(product =>
@@ -283,55 +282,9 @@ export default function WooCommerceManager() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="bg-white rounded-xl shadow-sm border p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">WooCommerce Manager</h1>
-              <p className="text-gray-600 mt-1">Administrer produkter på tværs af dine WooCommerce shops</p>
-            </div>
-            <div className="flex items-center gap-3">
-              {selectedShop && (
-                shops.find((s) => s.id === selectedShop)?.isConnected ? (
-                  <Wifi className="w-5 h-5 text-green-500" />
-                ) : (
-                  <WifiOff className="w-5 h-5 text-red-500" />
-                )
-              )}
-              <select
-                className={`border rounded px-3 py-1 focus:outline-none ${
-                  selectedShop
-                    ? shops.find((s) => s.id === selectedShop)?.isConnected
-                      ? 'border-green-500 text-green-700'
-                      : 'border-red-500 text-red-700'
-                    : 'text-gray-600'
-                }`}
-                value={selectedShop ?? ''}
-                onChange={(e) => setSelectedShop(e.target.value)}
-              >
-                <option value="" disabled>
-                  Vælg shop
-                </option>
-                {shops.map((shop) => (
-                  <option key={shop.id} value={shop.id}>
-                    {shop.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
-
         {/* Navigation Tabs */}
         <div className="bg-white rounded-xl shadow-sm border">
           <div className="flex border-b">
-            <Link
-              href={selectedShop ? `/dashboard?shopId=${selectedShop}` : '/dashboard'}
-              className="flex items-center gap-2 px-6 py-4 font-medium text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              <LayoutDashboard className="w-5 h-5" />
-              Dashboard
-            </Link>
             <button
               onClick={() => setActiveTab('products')}
               className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors ${
@@ -346,8 +299,8 @@ export default function WooCommerceManager() {
             <button
               onClick={() => setActiveTab('shops')}
               className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors ${
-                activeTab === 'shops' 
-                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' 
+                activeTab === 'shops'
+                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
