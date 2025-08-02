@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import ProductSheetModal from '@/components/ProductSheetModal';
 import type { WooProduct } from '@/lib/wooApi';
 // Custom toast implementation
 const toast = {
@@ -545,7 +546,7 @@ export default function WooCommerceManager() {
           )}
         </div>
       </div>
-      {showSheet && selectedProduct && <div className="hidden" />}
+      {showSheet && selectedProduct && <ProductSheetModal product={selectedProduct} onClose={() => setShowSheet(false)} />}
     </div>
   );
 }
