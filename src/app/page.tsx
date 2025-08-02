@@ -63,6 +63,7 @@ export default function WooCommerceManager() {
   const [expandedProducts, setExpandedProducts] = useState<Set<number>>(new Set());
   const [editingShop, setEditingShop] = useState<Shop | null>(null);
   const [showNewShopForm, setShowNewShopForm] = useState(false);
+  const [connectionsChecked, setConnectionsChecked] = useState(false);
 
   // Mock data for demonstration
   useEffect(() => {
@@ -90,6 +91,13 @@ export default function WooCommerceManager() {
     loadShops();
   }, []);
 
+  useEffect(() => {
+    if (!connectionsChecked && shops.length > 0) {
+      setConnectionsChecked(true);
+      shops.forEach((shop) => testConnection(shop, true));
+    }
+  }, [shops, connectionsChecked]);
+
   const filteredProducts = products.filter(product => 
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.sku.toLowerCase().includes(searchTerm.toLowerCase())
@@ -112,22 +120,26 @@ export default function WooCommerceManager() {
     setExpandedProducts(newExpanded);
   };
 
-  const testConnection = async (shop: Shop) => {
-    setIsLoading(true);
+  const testConnection = async (shop: Shop, background = false) => {
+    if (!background) setIsLoading(true);
     try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      const success = Math.random() > 0.3; // 70% success rate for demo
-      
-      setShops(prev => prev.map(s => 
-        s.id === shop.id ? { ...s, isConnected: success } : s
-      ));
-      
-      toast.success(success ? 'Forbindelse etableret!' : 'Forbindelse fejlede!');
+      const res = await fetch(`/api/shops/${shop.id}/test`);
+      const data = await res.json();
+      setShops((prev) =>
+        prev.map((s) => (s.id === shop.id ? { ...s, isConnected: data.success } : s)),
+      );
+      if (!background) {
+        toast.success(data.success ? 'Forbindelse etableret!' : 'Forbindelse fejlede!');
+      }
     } catch {
-      toast.error('Fejl ved test af forbindelse');
+      setShops((prev) =>
+        prev.map((s) => (s.id === shop.id ? { ...s, isConnected: false } : s)),
+      );
+      if (!background) {
+        toast.error('Fejl ved test af forbindelse');
+      }
     } finally {
-      setIsLoading(false);
+      if (!background) setIsLoading(false);
     }
   };
 
