@@ -21,6 +21,7 @@ export function getShopConfigs(): WooShop[] {
   }
 
 export async function fetchWooProducts(shop: WooShop) {
+export async function fetchWooProducts(shop: WooShop) {
   const client = getWooClient(shop);
   try {
     const res = await client.get('/products');
@@ -40,9 +41,8 @@ export async function fetchWooProducts(shop: WooShop) {
     }));
   } catch (err) {
     throw err;
-
+  }
 }
-
 export function getShopConfig(shopId: string): WooShop | null {
   const raw = process.env.SHOP_CONFIGS;
   if (!raw) return null;
