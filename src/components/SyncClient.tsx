@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { WooProduct } from '@/lib/wooApi';
 import { ProductTable } from './ProductTable';
 import { ShopSelector } from './ShopSelector';
@@ -8,22 +8,28 @@ import SyncResultModal from './SyncResultModal';
 
 type Row = WooProduct & { selected?: boolean };
 
-type Props = {
-  products: Row[];
-};
-
-export default function SyncClient({ products }: Props) {
-  const [rows, setRows] = useState<Row[]>(products);
+export default function SyncClient() {
+  const [rows, setRows] = useState<Row[]>([]);
   const [shopId, setShopId] = useState('');
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<null | { sku: string; success: boolean; error?: string }[]>(null);
+  const [result, setResult] = useState<
+    null | { sku: string; success: boolean; error?: string }[]
+  >(null);
+
+  useEffect(() => {
+    if (!shopId) return;
+    fetch(`/api/woo/products?shopId=${shopId}`)
+      .then((res) => res.json())
+      .then((data: WooProduct[]) =>
+        setRows(data.map((p) => ({ ...p, selected: false }))),
+      )
+      .catch(() => setRows([]));
+  }, [shopId]);
 
   const toggleRow = (id: number) => {
-    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, selected: !r.selected } : r)));
-  };
-
-  const updateRow = (id: number, data: Partial<Row>) => {
-    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...data } : r)));
+    setRows((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, selected: !r.selected } : r)),
+    );
   };
 
   const handleSync = async () => {
@@ -50,12 +56,12 @@ export default function SyncClient({ products }: Props) {
   return (
     <div className="space-y-4">
       <ShopSelector selected={shopId} onChange={setShopId} />
-      <ProductTable
-        products={rows}
-        onToggleSelect={toggleRow}
-        onUpdateProduct={updateRow}
-      />
-      <button className="border rounded px-4 py-2" disabled={loading} onClick={handleSync}>
+      <ProductTable products={rows} onToggleSelect={toggleRow} />
+      <button
+        className="border rounded px-4 py-2"
+        disabled={loading}
+        onClick={handleSync}
+      >
         {loading ? 'Syncing...' : 'Send til WooCommerce'}
       </button>
       {result && <SyncResultModal results={result} />}
