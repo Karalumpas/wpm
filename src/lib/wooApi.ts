@@ -40,6 +40,16 @@ export type WooProduct = {
   color?: string;
   size?: string;
   brand?: string;
+  variations?: WooProductVariation[];
+};
+
+export type WooProductVariation = {
+  id: number;
+  sku: string;
+  stock?: number;
+  stockStatus?: string;
+  color?: string;
+  size?: string;
 };
 
 export type WooShop = {
@@ -116,14 +126,15 @@ export async function fetchWooProducts(shop: WooShop): Promise<WooProduct[]> {
 
     for (const p of data) {
       const base = mapProduct(p);
+      base.type = 'parent';
       if (p.variations && (p.variations as unknown[]).length > 0) {
-        base.type = 'parent';
         products.push(base);
         const varRes = await client.get(
           `/products/${p.id}/variations`,
           { params: { per_page: 100 } },
         );
         const varData = varRes.data as WooProductData[];
+        const summaries: WooProductVariation[] = [];
         for (const v of varData) {
           const variation = mapProduct(v);
           variation.type = 'variation';
@@ -132,9 +143,17 @@ export async function fetchWooProducts(shop: WooShop): Promise<WooProduct[]> {
           if (!variation.brand) variation.brand = base.brand;
           if (!variation.image) variation.image = base.image;
           products.push(variation);
+          summaries.push({
+            id: variation.id,
+            sku: variation.sku,
+            stock: variation.stock,
+            stockStatus: variation.stockStatus,
+            color: variation.color,
+            size: variation.size,
+          });
         }
+        base.variations = summaries;
       } else {
-        base.type = 'parent';
         products.push(base);
       }
     }

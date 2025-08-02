@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+import { List } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -10,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import type { WooProduct } from '@/lib/wooApi';
+import type { WooProduct, WooProductVariation } from '@/lib/wooApi';
 
 type Product = WooProduct & { selected?: boolean };
 
@@ -18,6 +20,35 @@ type Props = {
   products: Product[];
   onToggleSelect: (id: number) => void;
 };
+
+function VariationsPopover({ variations }: { variations: WooProductVariation[] }) {
+  const [open, setOpen] = useState(false);
+  if (!variations || variations.length === 0) return null;
+  return (
+    <div className="relative inline-block ml-2">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="text-gray-500 hover:text-gray-700"
+        aria-label="Vis variationer"
+      >
+        <List className="w-4 h-4" />
+      </button>
+      {open && (
+        <div className="absolute z-20 bg-white border rounded shadow-md p-2 mt-1 whitespace-nowrap">
+          <ul className="text-xs space-y-1">
+            {variations.map((v) => (
+              <li key={v.id}>
+                {[v.color, v.size].filter(Boolean).join(' / ') || v.sku} - {v.stockStatus}
+                {typeof v.stock === 'number' ? ` (${v.stock})` : ''}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function ProductTable({ products, onToggleSelect }: Props) {
   return (
@@ -50,7 +81,14 @@ export function ProductTable({ products, onToggleSelect }: Props) {
                   onChange={() => onToggleSelect(product.id)}
                 />
               </TableCell>
-              <TableCell className="font-medium">{product.name}</TableCell>
+              <TableCell className="font-medium">
+                {product.name}
+                {product.type === 'parent' &&
+                  product.variations &&
+                  product.variations.length > 0 && (
+                    <VariationsPopover variations={product.variations} />
+                  )}
+              </TableCell>
               <TableCell className="text-xs">{product.sku}</TableCell>
               <TableCell>
                 {product.stockStatus ? (
