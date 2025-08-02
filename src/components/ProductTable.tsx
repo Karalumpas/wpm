@@ -1,6 +1,5 @@
 'use client';
 
-import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { WooProduct } from '@/lib/wooApi';
@@ -10,54 +9,58 @@ type Product = WooProduct & { selected?: boolean };
 type Props = {
   products: Product[];
   onToggleSelect: (id: number) => void;
-  onUpdateProduct: (id: number, data: Partial<Product>) => void;
 };
 
-export function ProductTable({ products, onToggleSelect, onUpdateProduct }: Props) {
+export function ProductTable({ products, onToggleSelect }: Props) {
   return (
     <div className="rounded border overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead></TableHead>
-            <TableHead>SKU</TableHead>
             <TableHead>Navn</TableHead>
+            <TableHead>SKU</TableHead>
+            <TableHead>Status</TableHead>
             <TableHead>Pris</TableHead>
+            <TableHead>Farve</TableHead>
+            <TableHead>Størrelse</TableHead>
+            <TableHead>Brand</TableHead>
             <TableHead>Kategori</TableHead>
-            <TableHead>Type</TableHead>
+            <TableHead>Billede</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {products.map((product) => (
-            <TableRow key={product.id} className={product.type === 'variation' ? 'bg-muted/30' : ''}>
+            <TableRow
+              key={product.id}
+              className={product.type === 'variation' ? 'bg-muted/30' : ''}
+            >
               <TableCell>
                 <Checkbox
                   checked={product.selected}
                   onChange={() => onToggleSelect(product.id)}
                 />
               </TableCell>
-              <TableCell className="text-xs">{product.sku}</TableCell>
               <TableCell className="font-medium">{product.name}</TableCell>
-              <TableCell>
-                <Input
-                  type="number"
-                  value={product.price}
-                  onChange={(e) =>
-                    onUpdateProduct(product.id, { price: parseFloat(e.target.value) || 0 })
-                  }
-                  className="w-24"
-                />
+              <TableCell className="text-xs">{product.sku}</TableCell>
+              <TableCell className="capitalize text-muted-foreground">
+                {product.status}
               </TableCell>
+              <TableCell>{product.price}</TableCell>
+              <TableCell>{product.color}</TableCell>
+              <TableCell>{product.size}</TableCell>
+              <TableCell>{product.brand}</TableCell>
+              <TableCell>{product.category}</TableCell>
               <TableCell>
-                <Input
-                  value={product.category || ''}
-                  onChange={(e) =>
-                    onUpdateProduct(product.id, { category: e.target.value })
-                  }
-                  className="w-40"
-                />
+                {product.image && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="h-12 w-12 object-cover"
+                  />
+                )}
               </TableCell>
-              <TableCell className="capitalize text-muted-foreground">{product.type}</TableCell>
             </TableRow>
           ))}
         </TableBody>
