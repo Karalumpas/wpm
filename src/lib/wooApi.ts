@@ -19,6 +19,28 @@ export function getShopConfigs(): WooShop[] {
   } catch {
     return [];
   }
+
+export async function fetchWooProducts(shop: WooShop) {
+  const client = getWooClient(shop);
+  try {
+    const res = await client.get('/products');
+    const data = res.data;
+    // Map WooCommerce products to local Product type
+    return data.map((p: any) => ({
+      id: p.id,
+      sku: p.sku,
+      name: p.name,
+      price: p.price,
+      category: p.categories?.[0]?.name,
+      type: p.variations?.length ? 'parent' : 'variation',
+      parentId: p.parent_id || undefined,
+      stock: p.stock_quantity,
+      status: p.status,
+      image: p.images?.[0]?.src,
+    }));
+  } catch (err) {
+    throw err;
+
 }
 
 export function getShopConfig(shopId: string): WooShop | null {
