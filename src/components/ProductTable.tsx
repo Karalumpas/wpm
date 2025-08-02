@@ -3,16 +3,9 @@
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import type { WooProduct } from '@/lib/wooApi';
 
-type Product = {
-  id: number;
-  sku: string;
-  name: string;
-  price: number;
-  category?: string;
-  type: 'parent' | 'variation';
-  selected?: boolean;
-};
+type Product = WooProduct & { selected?: boolean };
 
 type Props = {
   products: Product[];
@@ -40,7 +33,7 @@ export function ProductTable({ products, onToggleSelect, onUpdateProduct }: Prop
               <TableCell>
                 <Checkbox
                   checked={product.selected}
-                  onCheckedChange={() => onToggleSelect(product.id)}
+                  onChange={() => onToggleSelect(product.id)}
                 />
               </TableCell>
               <TableCell className="text-xs">{product.sku}</TableCell>
