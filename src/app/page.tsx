@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { WooProduct } from '@/lib/wooApi';
 // Custom toast implementation
@@ -23,19 +23,17 @@ const toast = {
     setTimeout(() => document.body.removeChild(toastEl), 3000);
   }
 };
-import { 
-  Plus, 
-  Settings, 
-  ShoppingBag, 
-  Store, 
-  Edit3, 
-  Trash2, 
-  ChevronDown, 
-  ChevronRight, 
-  Wifi, 
+import {
+  Plus,
+  ShoppingBag,
+  Store,
+  Edit3,
+  Trash2,
+  ChevronDown,
+  ChevronRight,
+  Wifi,
   WifiOff,
   Search,
-  Filter,
   RefreshCw,
   Save,
   X
@@ -63,7 +61,6 @@ export default function WooCommerceManager() {
   const [expandedProducts, setExpandedProducts] = useState<Set<number>>(new Set());
   const [editingShop, setEditingShop] = useState<Shop | null>(null);
   const [showNewShopForm, setShowNewShopForm] = useState(false);
-  const [connectionsChecked, setConnectionsChecked] = useState(false);
 
   // Mock data for demonstration
   useEffect(() => {
@@ -91,12 +88,6 @@ export default function WooCommerceManager() {
     loadShops();
   }, []);
 
-  useEffect(() => {
-    if (!connectionsChecked && shops.length > 0) {
-      setConnectionsChecked(true);
-      shops.forEach((shop) => testConnection(shop, true));
-    }
-  }, [shops, connectionsChecked]);
 
   const filteredProducts = products.filter(product => 
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
