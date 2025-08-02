@@ -11,6 +11,8 @@ interface WooProductData {
   sku: string;
   name: string;
   price: number | string;
+  regular_price?: number | string;
+  sale_price?: number | string;
   categories?: { name: string }[];
   variations?: unknown[];
   parent_id?: number;
@@ -25,6 +27,8 @@ export type WooProduct = {
   sku: string;
   name: string;
   price: number;
+  regularPrice?: number;
+  salePrice?: number;
   category?: string;
   type: 'parent' | 'variation';
   parentId?: number;
@@ -76,6 +80,18 @@ function mapProduct(p: WooProductData): WooProduct {
     sku: p.sku,
     name: p.name,
     price: typeof p.price === 'string' ? parseFloat(p.price) : p.price,
+    regularPrice:
+      p.regular_price !== undefined
+        ? typeof p.regular_price === 'string'
+          ? parseFloat(p.regular_price)
+          : p.regular_price
+        : undefined,
+    salePrice:
+      p.sale_price !== undefined
+        ? typeof p.sale_price === 'string'
+          ? parseFloat(p.sale_price)
+          : p.sale_price
+        : undefined,
     category: p.categories?.[0]?.name,
     type: 'parent',
     parentId: p.parent_id || undefined,
