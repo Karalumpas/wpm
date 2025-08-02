@@ -1,12 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { uploads } from '@/lib/schema';
 import { eq } from 'drizzle-orm';
 
 export async function GET(
-  request: Request,
-  { params }: { params: { uploadId: string } }
+  request: NextRequest,
+  context: { params: Promise<{ uploadId: string }> }
 ) {
+  const params = await context.params;
   const entry = await db
     .select()
     .from(uploads)

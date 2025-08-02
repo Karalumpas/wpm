@@ -1,5 +1,31 @@
 import axios from 'axios';
 
+interface WooProductData {
+  id: number;
+  sku: string;
+  name: string;
+  price: number;
+  categories?: { name: string }[];
+  variations?: unknown[];
+  parent_id?: number;
+  stock_quantity?: number;
+  status?: string;
+  images?: { src: string }[];
+}
+
+export type WooProduct = {
+  id: number;
+  sku: string;
+  name: string;
+  price: number;
+  category?: string;
+  type: 'parent' | 'variation';
+  parentId?: number;
+  stock?: number;
+  status?: string;
+  image?: string;
+};
+
 export type WooShop = {
   id: string;
   name: string;
@@ -21,13 +47,13 @@ export function getShopConfigs(): WooShop[] {
   }
 }
 
-export async function fetchWooProducts(shop: WooShop) {
+export async function fetchWooProducts(shop: WooShop): Promise<WooProduct[]> {
   const client = getWooClient(shop);
   try {
     const res = await client.get('/products');
-    const data = res.data;
+    const data = res.data as WooProductData[];
     // Map WooCommerce products to local Product type
-    return data.map((p: any) => ({
+    return data.map((p): WooProduct => ({
       id: p.id,
       sku: p.sku,
       name: p.name,
@@ -39,7 +65,7 @@ export async function fetchWooProducts(shop: WooShop) {
       status: p.status,
       image: p.images?.[0]?.src,
     }));
-  } catch (err) {
+  } catch (err: unknown) {
     throw err;
   }
 }

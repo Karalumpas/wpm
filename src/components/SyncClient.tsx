@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Product } from '@/lib/types';
+import type { WooProduct } from '@/lib/wooApi';
 import { ProductTable } from './ProductTable';
 import { ShopSelector } from './ShopSelector';
 import SyncResultModal from './SyncResultModal';
 
-type Row = Product & { id: number; selected?: boolean };
+type Row = WooProduct & { selected?: boolean };
 
 type Props = {
   products: Row[];

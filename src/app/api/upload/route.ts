@@ -13,7 +13,7 @@ const ProductSchema = z.object({
   category: z.string().optional().nullable(),
   stockStatus: z.string().optional().nullable(),
   parentSku: z.string().optional().nullable(),
-  attributes: z.record(z.any()).optional().nullable(),
+  attributes: z.record(z.string(), z.any()).optional().nullable(),
 });
 
 export async function POST(request: Request) {
