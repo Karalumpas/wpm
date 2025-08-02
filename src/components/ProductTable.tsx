@@ -1,7 +1,15 @@
 'use client';
 
 import { Checkbox } from '@/components/ui/checkbox';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import type { WooProduct } from '@/lib/wooApi';
 
 type Product = WooProduct & { selected?: boolean };
@@ -20,7 +28,7 @@ export function ProductTable({ products, onToggleSelect }: Props) {
             <TableHead></TableHead>
             <TableHead>Navn</TableHead>
             <TableHead>SKU</TableHead>
-            <TableHead>Status</TableHead>
+            <TableHead>Lagerstatus</TableHead>
             <TableHead>Normalpris</TableHead>
             <TableHead>Salgspris</TableHead>
             <TableHead>Farve</TableHead>
@@ -44,8 +52,23 @@ export function ProductTable({ products, onToggleSelect }: Props) {
               </TableCell>
               <TableCell className="font-medium">{product.name}</TableCell>
               <TableCell className="text-xs">{product.sku}</TableCell>
-              <TableCell className="capitalize text-muted-foreground">
-                {product.status}
+              <TableCell>
+                {product.stockStatus ? (
+                  <Badge
+                    variant="secondary"
+                    className={
+                      product.stockStatus === 'instock'
+                        ? 'bg-green-100 text-green-800 capitalize'
+                        : product.stockStatus === 'outofstock'
+                        ? 'bg-red-100 text-red-800 capitalize'
+                        : 'bg-yellow-100 text-yellow-800 capitalize'
+                    }
+                  >
+                    {product.stockStatus}
+                  </Badge>
+                ) : (
+                  '-'
+                )}
               </TableCell>
               <TableCell>{product.regularPrice ?? '-'}</TableCell>
               <TableCell

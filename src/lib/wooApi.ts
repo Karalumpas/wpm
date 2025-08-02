@@ -17,6 +17,7 @@ interface WooProductData {
   variations?: unknown[];
   parent_id?: number;
   stock_quantity?: number;
+  stock_status?: string;
   status?: string;
   images?: { src: string }[];
   attributes?: WooProductAttribute[];
@@ -33,6 +34,7 @@ export type WooProduct = {
   type: 'parent' | 'variation';
   parentId?: number;
   stock?: number;
+  stockStatus?: string;
   status?: string;
   image?: string;
   color?: string;
@@ -96,6 +98,7 @@ function mapProduct(p: WooProductData): WooProduct {
     type: 'parent',
     parentId: p.parent_id || undefined,
     stock: p.stock_quantity,
+    stockStatus: p.stock_status,
     status: p.status,
     image: p.images?.[0]?.src,
     color: extractAttribute(p, ['color', 'colour', 'pa_color', 'farve']),
