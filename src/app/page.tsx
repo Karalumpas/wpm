@@ -157,19 +157,30 @@ export default function WooCommerceManager() {
 
   const syncProducts = async () => {
     if (!selectedShop) return toast.error('Vælg en shop først');
-    
     setIsLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 3000));
       const shop = shops.find(s => s.id === selectedShop);
-      if (shop) {
-        setShops(prev => prev.map(s => 
-          s.id === selectedShop ? { ...s, lastSync: new Date().toISOString() } : s
-        ));
+      if (!shop || !shop.apiKey || !shop.apiSecret) {
+        toast.error('Shop mangler API-nøgle eller secret');
+        setIsLoading(false);
+        return;
       }
+      // Dynamisk import for at undgå SSR-problemer
+      const { fetchWooProducts } = await import('../lib/wooApi');
+      const productsFromApi = await fetchWooProducts({
+        id: shop.id,
+        name: shop.name,
+        url: shop.url,
+        consumer_key: shop.apiKey,
+        consumer_secret: shop.apiSecret,
+      });
+      setProducts(productsFromApi);
+      setShops(prev => prev.map(s =>
+        s.id === selectedShop ? { ...s, lastSync: new Date().toISOString() } : s
+      ));
       toast.success('Produkter synkroniseret!');
-    } catch {
-      toast.error('Fejl ved synkronisering');
+    } catch (err: any) {
+      toast.error('Fejl ved synkronisering: ' + (err?.message || 'Ukendt fejl'));
     } finally {
       setIsLoading(false);
     }
