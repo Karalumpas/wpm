@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import { LayoutDashboard, ShoppingBag, Store } from "lucide-react";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -34,14 +35,17 @@ export default function RootLayout({
             <h1 className="text-2xl font-bold text-gray-900">
               WooCommerce Product Manager
             </h1>
-            <nav className="space-x-6 text-gray-700">
-              <Link href="/dashboard" className="hover:text-blue-600">
+            <nav className="flex space-x-6 text-gray-700">
+              <Link href="/dashboard" className="flex items-center gap-2 hover:text-blue-600">
+                <LayoutDashboard className="w-5 h-5" />
                 Dashboard
               </Link>
-              <Link href="/manager?tab=products" className="hover:text-blue-600">
+              <Link href="/manager?tab=products" className="flex items-center gap-2 hover:text-blue-600">
+                <ShoppingBag className="w-5 h-5" />
                 Produkter
               </Link>
-              <Link href="/manager?tab=shops" className="hover:text-blue-600">
+              <Link href="/manager?tab=shops" className="flex items-center gap-2 hover:text-blue-600">
+                <Store className="w-5 h-5" />
                 Shops
               </Link>
             </nav>
