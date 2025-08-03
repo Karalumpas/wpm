@@ -1,39 +1,15 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useShop } from './ShopContext';
+import { useShopContext } from './ShopContext';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Store, ChevronDown } from 'lucide-react';
 
-type Shop = {
-  id: string;
-  name: string;
-  isConnected: boolean;
-};
-
 export function ShopSelector() {
-  const { shopId, setShopId } = useShop();
-  const [shops, setShops] = useState<Shop[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { shops, selectedShop, setSelectedShop, isLoading } = useShopContext();
 
-  useEffect(() => {
-    const loadShops = async () => {
-      try {
-        const res = await fetch('/api/shops');
-        const data: Shop[] = await res.json();
-        setShops(data);
-      } catch {
-        console.error('Fejl ved hentning af shops');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadShops();
-  }, []);
-
-  const selectedShop = shops.find(s => s.id === shopId);
+  const currentShop = shops.find(s => s.id === selectedShop);
 
   return (
     <div className="flex items-center gap-4">
@@ -49,14 +25,14 @@ export function ShopSelector() {
           className={`w-72 border rounded-lg px-4 py-2 bg-white appearance-none cursor-pointer 
             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
             ${isLoading ? 'text-gray-400' : 'text-gray-900'}
-            ${!shopId ? 'text-gray-500' : ''}
+            ${!selectedShop ? 'text-gray-500' : ''}
           `}
-          value={shopId ?? ''}
-          onChange={(e) => setShopId(e.target.value)}
+          value={selectedShop ?? ''}
+          onChange={(e) => setSelectedShop(e.target.value)}
           disabled={isLoading}
         >
           <option value="" disabled>
-            {isLoading ? 'Indlæser shops...' : 'Vælg en shop'}
+            {isLoading && shops.length === 0 ? 'Indlæser shops...' : 'Vælg en shop'}
           </option>
           {shops.map((shop) => (
             <option key={shop.id} value={shop.id}>
@@ -68,12 +44,12 @@ export function ShopSelector() {
           <ChevronDown className="h-4 w-4 text-gray-400" />
         </div>
       </div>
-      {selectedShop && (
+      {currentShop && (
         <Badge 
-          variant={shops.find(s => s.id === shopId)?.isConnected ? "default" : "destructive"}
+          variant={currentShop.isConnected ? "default" : "destructive"}
           className="ml-2"
         >
-          {shops.find(s => s.id === shopId)?.isConnected ? 'Forbundet' : 'Afbrudt'}
+          {currentShop.isConnected ? 'Forbundet' : 'Afbrudt'}
         </Badge>
       )}
     </div>
