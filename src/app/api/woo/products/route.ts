@@ -1,30 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchWooProducts } from '@/lib/wooApi';
+import { getWooApi } from '@/lib/wooApi';
 import { db } from '@/lib/db';
-import { shops } from '@/lib/schema';
+import { shops as shopsSchema } from '@/lib/schema';
 import { eq } from 'drizzle-orm';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const shopId = searchParams.get('shopId');
+  const page = parseInt(searchParams.get('page') || '1', 10);
+  const perPage = 20; // Antal produkter pr. side
+
   if (!shopId) {
-    return NextResponse.json({ error: 'Missing shopId' }, { status: 400 });
+    return NextResponse.json({ error: 'Shop ID er påkrævet' }, { status: 400 });
   }
-  const [shop] = await db.select().from(shops).where(eq(shops.id, shopId));
-  if (!shop || !shop.apiKey || !shop.apiSecret) {
-    return NextResponse.json({ error: 'Shop not found' }, { status: 404 });
-  }
+
   try {
-    const products = await fetchWooProducts({
-      id: shop.id,
-      name: shop.name,
-      url: shop.url,
-      consumer_key: shop.apiKey,
-      consumer_secret: shop.apiSecret,
+    const shop = await db.select().from(shopsSchema).where(eq(shopsSchema.id, shopId)).get();
+
+    if (!shop) {
+      return NextResponse.json({ error: 'Shop ikke fundet' }, { status: 404 });
+    }
+
+    const wooApi = getWooApi(shop.url, shop.apiKey, shop.apiSecret);
+
+    const { data: products, headers } = await wooApi.get('products', {
+      page,
+      per_page: perPage,
     });
-    return NextResponse.json(products);
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    return NextResponse.json({ error: message }, { status: 500 });
+
+    const totalProducts = headers['x-wp-total'];
+    const totalPages = headers['x-wp-totalpages'];
+
+    return NextResponse.json({
+      products,
+      totalProducts: parseInt(totalProducts, 10),
+      totalPages: parseInt(totalPages, 10),
+    });
+  } catch (error: any) {
+    console.error('Fejl ved hentning af produkter fra WooCommerce:', error.response?.data || error.message);
+    return NextResponse.json({ error: 'Kunne ikke hente produkter', details: error.response?.data }, { status: 500 });
   }
 }
+
