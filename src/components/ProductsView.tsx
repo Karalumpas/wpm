@@ -70,14 +70,14 @@ export default function ProductsView() {
     }
   };
 
-  const sortedProducts = [...products].sort((a, b) => {
+  const sortedProducts = Array.isArray(products) ? [...products].sort((a, b) => {
     if (!sortConfig) return 0;
     const aValue = a[sortConfig.key] ?? '';
     const bValue = b[sortConfig.key] ?? '';
     if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
     if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;
     return 0;
-  });
+  }) : [];
 
   const filteredProducts = sortedProducts.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
