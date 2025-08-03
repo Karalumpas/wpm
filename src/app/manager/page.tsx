@@ -10,23 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import ProductSheetModal from '@/components/ProductSheetModal';
 import type { WooProduct } from '@/lib/wooApi';
-// Custom toast implementation
-const toast = {
-  success: (message: string) => {
-    const toastEl = document.createElement('div');
-    toastEl.className = 'fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse';
-    toastEl.textContent = message;
-    document.body.appendChild(toastEl);
-    setTimeout(() => document.body.removeChild(toastEl), 3000);
-  },
-  error: (message: string) => {
-    const toastEl = document.createElement('div');
-    toastEl.className = 'fixed top-4 right-4 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-pulse';
-    toastEl.textContent = message;
-    document.body.appendChild(toastEl);
-    setTimeout(() => document.body.removeChild(toastEl), 3000);
-  }
-};
+import { toast } from 'sonner';
 import {
   Plus,
   ShoppingBag,
@@ -118,7 +102,11 @@ function WooCommerceManager() {
         prev.map((s) => (s.id === shop.id ? { ...s, isConnected: data.success } : s)),
       );
       if (!background) {
-        toast.success(data.success ? 'Forbindelse etableret!' : 'Forbindelse fejlede!');
+        if (data.success) {
+          toast.success('Forbindelse etableret!');
+        } else {
+          toast.error('Forbindelse fejlede!');
+        }
       }
     } catch {
       setShops((prev) =>

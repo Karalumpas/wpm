@@ -3,8 +3,10 @@ import "@fontsource/inter/400.css";
 import "@fontsource/inter/500.css";
 import "@fontsource/inter/600.css";
 import "@fontsource/inter/700.css";
-import Link from "next/link";
 import { ShopProvider } from "@/components/ShopContext";
+import { Toaster } from "sonner";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -19,33 +21,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className="font-sans antialiased bg-gray-50"
-        suppressHydrationWarning
-      >
-        <ShopProvider>
-          <header className="bg-white shadow">
-            <div className="max-w-7xl mx-auto px-4 py-6 flex items-center justify-between">
-              <h1 className="text-2xl font-bold text-gray-900">
-                WooCommerce Product Manager
-              </h1>
-              <nav className="space-x-6 text-gray-700">
-                <Link href="/dashboard" className="hover:text-blue-600">
-                  Dashboard
-                </Link>
-                <Link href="/manager?tab=products" className="hover:text-blue-600">
-                  Produkter
-                </Link>
-                <Link href="/manager?tab=shops" className="hover:text-blue-600">
-                  Shops
-                </Link>
-              </nav>
-            </div>
-          </header>
-          <main className="max-w-7xl mx-auto p-4">
-            {children}
-          </main>
-        </ShopProvider>
+      <body className="font-sans antialiased" suppressHydrationWarning>
+        <ErrorBoundary>
+          <ShopProvider>
+            <AppLayout>
+              {children}
+            </AppLayout>
+            <Toaster richColors position="top-right" />
+          </ShopProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );
