@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -53,16 +54,25 @@ type Shop = {
 };
 
 export default function WooCommerceManager() {
+  const searchParams = useSearchParams();
+  const initialTab = searchParams.get('tab') === 'shops' ? 'shops' : 'products';
   const [products, setProducts] = useState<Product[]>([]);
   const [shops, setShops] = useState<Shop[]>([]);
   const [selectedShop, setSelectedShop] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'products' | 'shops'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'shops'>(initialTab);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showSheet, setShowSheet] = useState(false);
   const [editingShop, setEditingShop] = useState<Shop | null>(null);
   const [showNewShopForm, setShowNewShopForm] = useState(false);
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'products' || tab === 'shops') {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   // Load data from the backend
   useEffect(() => {
