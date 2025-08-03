@@ -6,13 +6,14 @@ import { getWooClient } from '@/lib/wooApi';
 
 export async function GET(
   _req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await params;
     const [shop] = await db
       .select()
       .from(shops)
-      .where(eq(shops.id, params.id));
+      .where(eq(shops.id, id));
     if (!shop) {
       return NextResponse.json({ success: false, error: 'Shop not found' }, { status: 404 });
     }

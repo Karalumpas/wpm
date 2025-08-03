@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -53,7 +54,7 @@ type Shop = {
   lastSync?: string;
 };
 
-export default function WooCommerceManager() {
+function WooCommerceManager() {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') === 'shops' ? 'shops' : 'products';
   const [products, setProducts] = useState<Product[]>([]);
@@ -567,3 +568,13 @@ export default function WooCommerceManager() {
     </div>
   );
 }
+
+function ManagerPageWithSuspense() {
+  return (
+    <Suspense fallback={<div className="p-4">Loading...</div>}>
+      <WooCommerceManager />
+    </Suspense>
+  );
+}
+
+export default ManagerPageWithSuspense;
