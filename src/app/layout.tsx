@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import { ShopProvider } from "@/components/ShopContext";
+import { ShopSelector } from "@/components/ShopSelector";
+import { LayoutDashboard, ShoppingBag, Store } from "lucide-react";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -31,27 +33,54 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <ShopProvider>
-          <header className="bg-white shadow">
-            <div className="max-w-7xl mx-auto px-4 py-6 flex items-center justify-between">
-              <h1 className="text-2xl font-bold text-gray-900">
-                WooCommerce Product Manager
-              </h1>
-              <nav className="space-x-6 text-gray-700">
-                <Link href="/dashboard" className="hover:text-blue-600">
-                  Dashboard
-                </Link>
-                <Link href="/manager?tab=products" className="hover:text-blue-600">
-                  Produkter
-                </Link>
-                <Link href="/manager?tab=shops" className="hover:text-blue-600">
-                  Shops
-                </Link>
-              </nav>
-            </div>
-          </header>
-          <main className="max-w-7xl mx-auto p-4">
-            {children}
-          </main>
+          <div className="min-h-screen flex">
+            {/* Sidebar */}
+            <aside className="w-64 bg-white border-r fixed h-full">
+              <div className="p-6">
+                <h1 className="text-xl font-bold text-gray-900 mb-6">
+                  WooCommerce Manager
+                </h1>
+                <nav className="space-y-2">
+                  <Link 
+                    href="/dashboard" 
+                    className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors hover:text-blue-600"
+                  >
+                    <LayoutDashboard className="w-5 h-5" />
+                    Dashboard
+                  </Link>
+                  <Link 
+                    href="/manager?tab=products" 
+                    className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors hover:text-blue-600"
+                  >
+                    <ShoppingBag className="w-5 h-5" />
+                    Produkter
+                  </Link>
+                  <Link 
+                    href="/manager?tab=shops" 
+                    className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors hover:text-blue-600"
+                  >
+                    <Store className="w-5 h-5" />
+                    Shops
+                  </Link>
+                </nav>
+              </div>
+            </aside>
+
+            {/* Main Content */}
+            <main className="flex-1 ml-64">
+              {/* Header */}
+              <header className="bg-white border-b sticky top-0 z-10">
+                <div className="px-8 py-4 flex items-center justify-between">
+                  <ShopSelector />
+                </div>
+              </header>
+              
+              {/* Content */}
+              <div className="p-8">
+                {children}
+              </div>
+            </main>
+          </div>
         </ShopProvider>
       </body>
     </html>
