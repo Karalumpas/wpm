@@ -168,7 +168,7 @@ export default function WooCommerceManager() {
         return;
       }
       // Dynamisk import for at undgå SSR-problemer
-      const { fetchWooProducts } = await import('../lib/wooApi');
+      const { fetchWooProducts } = await import('@/lib/wooApi');
       const productsFromApi = await fetchWooProducts({
         id: shop.id,
         name: shop.name,
@@ -328,6 +328,18 @@ export default function WooCommerceManager() {
                   </option>
                 ))}
               </select>
+              <Button
+                onClick={syncProducts}
+                disabled={isLoading || !selectedShop}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                {isLoading ? (
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                )}
+                Synkroniser
+              </Button>
             </div>
           </div>
         </div>
@@ -370,7 +382,7 @@ export default function WooCommerceManager() {
           {activeTab === 'products' && (
             <div className="p-6 space-y-6">
               {/* Controls */}
-              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
                 <div className="flex-1 max-w-md">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -381,20 +393,6 @@ export default function WooCommerceManager() {
                       className="pl-10"
                     />
                   </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button 
-                    onClick={syncProducts} 
-                    disabled={isLoading || !selectedShop}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    {isLoading ? (
-                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                    ) : (
-                      <RefreshCw className="w-4 h-4 mr-2" />
-                    )}
-                    Synkroniser
-                  </Button>
                 </div>
               </div>
 
