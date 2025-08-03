@@ -1,6 +1,8 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useShop } from './ShopContext';
 import { Label } from '@/components/ui/label';
 
 type Shop = {
@@ -8,12 +10,8 @@ type Shop = {
   name: string;
 };
 
-type Props = {
-  selected: string | null;
-  onChange: (shopId: string) => void;
-};
-
-export function ShopSelector({ selected, onChange }: Props) {
+export function ShopSelector() {
+  const { shopId, setShopId } = useShop();
   const [shops, setShops] = useState<Shop[]>([]);
 
   useEffect(() => {
@@ -30,13 +28,15 @@ export function ShopSelector({ selected, onChange }: Props) {
   }, []);
 
   return (
-    <div className="space-y-1">
-      <Label htmlFor="shop">Vælg webshop</Label>
+    <div className="flex items-center gap-2">
+      <Label htmlFor="shop" className="sr-only">
+        Vælg webshop
+      </Label>
       <select
         id="shop"
         className="w-64 border rounded px-3 py-2"
-        value={selected ?? ''}
-        onChange={(e) => onChange(e.target.value)}
+        value={shopId ?? ''}
+        onChange={(e) => setShopId(e.target.value)}
       >
         <option value="" disabled>
           Vælg en shop
