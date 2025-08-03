@@ -280,16 +280,15 @@ function WooCommerceManager() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="bg-white rounded-xl shadow-sm border p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">WooCommerce Manager</h1>
-              <p className="text-gray-600 mt-1">Administrer produkter på tværs af dine WooCommerce shops</p>
-            </div>
-            <div className="flex items-center gap-3">
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="bg-white rounded-xl shadow-sm border p-4 lg:p-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">WooCommerce Manager</h1>
+            <p className="text-gray-600 mt-1 text-sm lg:text-base">Administrer produkter på tværs af dine WooCommerce shops</p>
+          </div>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
               {selectedShop && (
                 shops.find((s) => s.id === selectedShop)?.isConnected ? (
                   <Wifi className="w-5 h-5 text-green-500" />
@@ -551,7 +550,6 @@ function WooCommerceManager() {
             </div>
           )}
         </div>
-      </div>
       {showSheet && selectedProduct && <ProductSheetModal product={selectedProduct} onClose={() => setShowSheet(false)} />}
     </div>
   );
