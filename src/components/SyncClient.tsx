@@ -3,14 +3,14 @@
 import { useEffect, useState } from 'react';
 import type { WooProduct } from '@/lib/wooApi';
 import { ProductTable } from './ProductTable';
-import { ShopSelector } from './ShopSelector';
 import SyncResultModal from './SyncResultModal';
+import { useShop } from './ShopContext';
 
 type Row = WooProduct & { selected?: boolean };
 
 export default function SyncClient() {
   const [rows, setRows] = useState<Row[]>([]);
-  const [shopId, setShopId] = useState('');
+  const { shopId } = useShop();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<
     null | { sku: string; success: boolean; error?: string }[]
@@ -55,7 +55,6 @@ export default function SyncClient() {
 
   return (
     <div className="space-y-4">
-      <ShopSelector selected={shopId} onChange={setShopId} />
       <ProductTable products={rows} onToggleSelect={toggleRow} />
       <button
         className="border rounded px-4 py-2"

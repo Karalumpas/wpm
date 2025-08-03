@@ -1,22 +1,19 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ShopSelector } from '@/components/ShopSelector';
 import type { WooProduct } from '@/lib/wooApi';
+import { useShop } from '@/components/ShopContext';
 
 export default function Dashboard() {
-  const params = useSearchParams();
-  const initialShop = params.get('shopId');
-  const [selectedShop, setSelectedShop] = useState<string | null>(initialShop);
+  const { shopId } = useShop();
   const [products, setProducts] = useState<WooProduct[]>([]);
 
   useEffect(() => {
-    if (!selectedShop) return;
+    if (!shopId) return;
     const load = async () => {
       try {
-        const res = await fetch(`/api/woo/products?shopId=${selectedShop}`);
+        const res = await fetch(`/api/woo/products?shopId=${shopId}`);
         const data: unknown = await res.json();
         if (!res.ok || !Array.isArray(data)) {
           console.error('Invalid product response', data);
@@ -29,13 +26,16 @@ export default function Dashboard() {
       }
     };
     load();
-  }, [selectedShop]);
+  }, [shopId]);
 
   const lowStockThreshold = 5;
-  const lowStock = products.filter(p => (p.stock ?? 0) < lowStockThreshold).length;
+  const lowStock = products.filter((p) => (p.stock ?? 0) < lowStockThreshold).length;
   const totalProducts = products.length;
-  const totalRevenue = products.reduce((sum, p) => sum + (p.totalSales ?? 0) * p.price, 0);
-  const outOfStock = products.filter(p => (p.stock ?? 0) === 0).length;
+  const totalRevenue = products.reduce(
+    (sum, p) => sum + (p.totalSales ?? 0) * p.price,
+    0,
+  );
+  const outOfStock = products.filter((p) => (p.stock ?? 0) === 0).length;
   const avgPrice = totalProducts
     ? products.reduce((sum, p) => sum + p.price, 0) / totalProducts
     : 0;
@@ -46,10 +46,9 @@ export default function Dashboard() {
         <div className="bg-white rounded-xl shadow-sm border p-6">
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-            <ShopSelector selected={selectedShop} onChange={setSelectedShop} />
           </div>
         </div>
-        {selectedShop && (
+        {shopId && (
           <div className="bg-white rounded-xl shadow-sm border p-6">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <Card>
